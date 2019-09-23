@@ -47,7 +47,10 @@ def addObj(obj, row, col):
 
     newObj.location.x += my_props.colOffset * col
     if my_props.numCol is not 1:
-        newObj.delta_rotation_euler.z = (my_props.maxAngleH-my_props.minAngleH)/(my_props.numCol-1)*col+my_props.minAngleH
+        if my_props.invertAxis:
+            newObj.delta_rotation_euler.y = -((my_props.maxAngleH-my_props.minAngleH)/(my_props.numCol-1)*col+my_props.minAngleH)
+        else:
+            newObj.delta_rotation_euler.z = (my_props.maxAngleH-my_props.minAngleH)/(my_props.numCol-1)*col+my_props.minAngleH
 
     newObj.location.z -= my_props.rowOffset * row
     if my_props.numRow is not 1:
@@ -169,6 +172,11 @@ class MySettings(PropertyGroup):
         default = 3.14,
         subtype = 'ANGLE'
         )
+    invertAxis : BoolProperty(
+        name = "Invert",
+        description = "invert the order of the rotations",
+        default = False
+        )
 
 class PANEL_PT_UIclass(bpy.types.Panel):
     """Creates a Panel in the Tool tab"""
@@ -206,6 +214,8 @@ class PANEL_PT_UIclass(bpy.types.Panel):
         col = split.column(align=True)
         col.prop(rd, "minAngleV")
         col.prop(rd, "maxAngleV")
+        layout.separator
+        layout.prop(rd, "invertAxis")
         #operator
         layout.operator("object.create_rotational_grid", text = "Create Grid")
         layout.operator("object.update_rotational_grid", text = "Update Grid")
