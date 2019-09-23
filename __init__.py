@@ -31,7 +31,7 @@ def deleteGrid(obj):
     list = bpy.context.scene["objList_"+obj.name]
     for ob in list:
         bpy.data.objects.remove(ob, do_unlink = True)
-    obj.delta_rotation_euler = [0,0,0]
+    obj.rotation_euler = [0,0,0]
     bpy.context.scene["objList_"+obj.name] = []
 
 
@@ -44,29 +44,28 @@ def addObj(obj, row, col):
         addToList(obj, newObj)
     else:
         newObj = obj
-        if my_props.numCol is not 1:
-            obj.delta_rotation_euler.z = (my_props.maxAngleH-my_props.minAngleH)/(my_props.numCol-1)*col+my_props.minAngleH
-        if my_props.numRow is not 1:
-            obj.delta_rotation_euler.x = (my_props.maxAngleV-my_props.minAngleV)/(my_props.numRow-1)*row+my_props.minAngleV
-
-
+    newObj.rotation_euler = [0,0,0]
 
     if not my_props.invertAxis:
         newObj.location.x += my_props.colOffset * col
         if my_props.numCol is not 1:
-            newObj.rotation_euler.z = (my_props.maxAngleH-my_props.minAngleH)/(my_props.numCol-1)*col+my_props.minAngleH
-
-    newObj.location.z -= my_props.rowOffset * row
-    if my_props.numRow is not 1:
-        newObj.rotation_euler.x = (my_props.maxAngleV-my_props.minAngleV)/(my_props.numRow-1)*row+my_props.minAngleV
-
-    if my_props.invertAxis:
-        newObj.location.x += my_props.colOffset * col
-        if my_props.numRow is not 1:
             valueH = (my_props.maxAngleH-my_props.minAngleH)/(my_props.numCol-1)*col+my_props.minAngleH
             selectObj(newObj)
             bpy.ops.transform.rotate(value=-valueH, orient_axis='Z', orient_type='LOCAL')
 
+    newObj.location.z -= my_props.rowOffset * row
+    if my_props.numRow is not 1:
+        valueV = (my_props.maxAngleV-my_props.minAngleV)/(my_props.numRow-1)*row+my_props.minAngleV
+        selectObj(newObj)
+        bpy.ops.transform.rotate(value=-valueV, orient_axis='X', orient_type='LOCAL')
+
+    if my_props.invertAxis:
+        newObj.location.x += my_props.colOffset * col
+        if my_props.numCol is not 1:
+            valueH = (my_props.maxAngleH-my_props.minAngleH)/(my_props.numCol-1)*col+my_props.minAngleH
+            selectObj(newObj)
+            bpy.ops.transform.rotate(value=-valueH, orient_axis='Z', orient_type='LOCAL')
+    print(str(row) + " " + str(col) + " " + str(valueH) + " " + str(valueV) + " " )
     selectObj(obj)
 
 
