@@ -44,17 +44,37 @@ def addObj(obj, row, col):
         addToList(obj, newObj)
     else:
         newObj = obj
+        if my_props.numCol is not 1:
+            obj.delta_rotation_euler.z = (my_props.maxAngleH-my_props.minAngleH)/(my_props.numCol-1)*col+my_props.minAngleH
+        if my_props.numRow is not 1:
+            obj.delta_rotation_euler.x = (my_props.maxAngleV-my_props.minAngleV)/(my_props.numRow-1)*row+my_props.minAngleV
 
-    newObj.location.x += my_props.colOffset * col
-    if my_props.numCol is not 1:
-        if my_props.invertAxis:
-            newObj.delta_rotation_euler.y = -((my_props.maxAngleH-my_props.minAngleH)/(my_props.numCol-1)*col+my_props.minAngleH)
-        else:
-            newObj.delta_rotation_euler.z = (my_props.maxAngleH-my_props.minAngleH)/(my_props.numCol-1)*col+my_props.minAngleH
+
+
+    if not my_props.invertAxis:
+        newObj.location.x += my_props.colOffset * col
+        if my_props.numCol is not 1:
+            newObj.rotation_euler.z = (my_props.maxAngleH-my_props.minAngleH)/(my_props.numCol-1)*col+my_props.minAngleH
 
     newObj.location.z -= my_props.rowOffset * row
     if my_props.numRow is not 1:
-        newObj.delta_rotation_euler.x = (my_props.maxAngleV-my_props.minAngleV)/(my_props.numRow-1)*row+my_props.minAngleV
+        newObj.rotation_euler.x = (my_props.maxAngleV-my_props.minAngleV)/(my_props.numRow-1)*row+my_props.minAngleV
+
+    if my_props.invertAxis:
+        newObj.location.x += my_props.colOffset * col
+        if my_props.numRow is not 1:
+            valueH = (my_props.maxAngleH-my_props.minAngleH)/(my_props.numCol-1)*col+my_props.minAngleH
+            selectObj(newObj)
+            bpy.ops.transform.rotate(value=-valueH, orient_axis='Z', orient_type='LOCAL')
+
+    selectObj(obj)
+
+
+def selectObj(obj):
+    for ob in bpy.context.selected_objects:
+        ob.select_set(False)
+    obj.select_set(True)
+    bpy.context.view_layer.objects.active = obj
 
 def addToList(obj, new_obj):
     list = bpy.context.scene["objList_"+obj.name]
@@ -174,7 +194,7 @@ class MySettings(PropertyGroup):
         )
     invertAxis : BoolProperty(
         name = "Invert",
-        description = "invert the order of the rotations",
+        description = "use local transformation instead of global ones",
         default = False
         )
 
